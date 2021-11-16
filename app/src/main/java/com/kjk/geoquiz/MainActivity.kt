@@ -17,17 +17,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        binding.btnTrue.setOnClickListener(this)
-        binding.btnFalse.setOnClickListener(this)
+        binding.trueButton.setOnClickListener(this)
+        binding.falseButton.setOnClickListener(this)
+        binding.nextButton.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
         when(v) {
-            binding.btnTrue -> {
+            binding.trueButton -> {
                 showToast(true)
             }
-            binding.btnFalse -> {
+            binding.falseButton -> {
                 showToast(false)
+            }
+            binding.nextButton -> {
+                //TODO 다음 질문
             }
         }
     }
