@@ -1,4 +1,4 @@
-package com.kjk.geoquiz.model
+package com.kjk.geoquiz.data
 
 import androidx.annotation.StringRes
 
