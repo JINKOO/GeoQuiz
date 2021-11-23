@@ -39,10 +39,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when(v) {
             binding.trueButton -> {
-                showToast(true)
+                //showToast(true)
+                checkAnswer(true)
             }
             binding.falseButton -> {
-                showToast(false)
+                //showToast(false)
+                checkAnswer(false)
             }
             binding.nextButton -> {
                 //TODO 다음 질문
@@ -54,6 +56,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun updateQuestion() {
         binding.questionTextView.setText(questionLists[currentIndex].textResId)
+    }
+
+    /**
+     * @param userAnswer : 사용자가 True, false 중 어떤 버튼을 클릭했는지 식별하는 변수
+     */
+    private fun checkAnswer(userAnswer: Boolean) {
+        val correctAnswer = questionLists[currentIndex].answer
+
+        val messageResId = if (userAnswer == correctAnswer) {
+            R.string.answer
+        } else {
+            R.string.wrong_answer
+        }
+
+        Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
     }
 
     private fun showToast(isAnswer: Boolean) {
