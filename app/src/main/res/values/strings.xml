@@ -15,4 +15,6 @@
     <string name="wrong_answer">틀렸음!!!</string>
 
     <string name="next_button">NEXT</string>
+    <string name="previous_button">PREVIOUS</string>
+
 </resources>
