@@ -17,4 +17,6 @@
     <string name="next_button">NEXT</string>
     <string name="previous_button">PREVIOUS</string>
 
+    <string name="submit_button">SUBMIT</string>
+
 </resources>

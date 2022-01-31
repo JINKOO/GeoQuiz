@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="18dp"
-    android:gravity="center"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/question_text_view"
@@ -15,13 +11,15 @@
         android:layout_height="wrap_content"
         android:padding="24dp"
         android:textSize="18dp"
+        android:layout_gravity="center_horizontal"
         tools:text="@string/question_australia" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal|center_vertical">
 
         <Button
             android:id="@+id/true_button"
@@ -42,24 +40,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_gravity="bottom|center">
 
-        <ImageButton
-            android:id="@+id/previous_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:drawablePadding="4dp"
-            android:src="@drawable/arrow_left"
-            android:text="@string/previous_button" />
+    <ImageButton
+        android:id="@+id/previous_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:drawablePadding="4dp"
+        android:src="@drawable/arrow_left"
+        android:text="@string/previous_button" />
 
-        <ImageButton
-            android:id="@+id/next_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawablePadding="4dp"
-            android:src="@drawable/arrow_right"
-            android:text="@string/next_button" />
+    <ImageButton
+        android:id="@+id/next_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="4dp"
+        android:src="@drawable/arrow_right"
+        android:text="@string/next_button" />
     </LinearLayout>
 
     <Button
@@ -68,4 +67,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:text="@string/submit_button" />
-</LinearLayout>
+
+</FrameLayout>
