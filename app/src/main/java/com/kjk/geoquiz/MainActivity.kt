@@ -14,64 +14,76 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MyInterface {
     private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
-
-//    private val questionLists = listOf(
-//            QuestionEntity(R.string.question_australia, true),
-//            QuestionEntity(R.string.question_ocean, true),
-//            QuestionEntity(R.string.question_mideast, false),
-//            QuestionEntity(R.string.question_africa, false),
-//            QuestionEntity(R.string.question_americas, true),
-//            QuestionEntity(R.string.question_asia, true)
-//    )
-
     private var questionLists: ArrayList<QuestionEntity> = ArrayList()
-
-    private var currentIndex = 0;
-
+    private var currentIndex = 0
     private var model = QuestionModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        /** 질문 리스트 초기화하기 위한 */
+        setListener()
+        initData()
+    }
+
+    private fun initData() {
         model.setInterface(this)
-
         model.createQuestionList()
-
-        binding.trueButton.setOnClickListener(this)
-        binding.falseButton.setOnClickListener(this)
-        binding.nextButton.setOnClickListener(this)
-
         updateQuestion()
     }
 
+    private fun setListener() {
+        binding.apply {
+            trueButton.setOnClickListener(this@MainActivity)
+            falseButton.setOnClickListener(this@MainActivity)
+            previousButton.setOnClickListener(this@MainActivity)
+            nextButton.setOnClickListener(this@MainActivity)
+            questionTextView.setOnClickListener(this@MainActivity)
+        }
+    }
 
     override fun onClick(v: View?) {
-        when (v) {
-            binding.trueButton -> {
-                //showToast(true)
-                checkAnswer(true)
-            }
-            binding.falseButton -> {
-                //showToast(false)
-                checkAnswer(false)
-            }
-            binding.nextButton -> {
-                //TODO 다음 질문
-                currentIndex = (currentIndex + 1) % questionLists.size
-                updateQuestion()
+        binding.run {
+            when (v) {
+                trueButton -> {
+                    checkAnswer(true)
+                }
+                falseButton -> {
+                    checkAnswer(false)
+                }
+                questionTextView, nextButton -> {
+                   changeQuestion(1)
+                }
+                previousButton -> {
+                    changeQuestion(-1)
+                }
             }
         }
     }
 
-    private fun updateQuestion() {
-        binding.questionTextView.setText(questionLists[currentIndex].textResId)
+    private fun changeQuestion(amount: Int) {
+        if (isStartIndex()) {
+            currentIndex = questionLists.size
+        }
+        currentIndex = (currentIndex + amount) % questionLists.size
+        updateQuestion()
     }
 
-    /**
-     * @param userAnswer : 사용자가 True, false 중 어떤 버튼을 클릭했는지 식별하는 변수
-     */
+    private fun isStartIndex(): Boolean {
+        return currentIndex == 0
+    }
+
+    private fun updateQuestion() {
+        binding.questionTextView.run {
+            text = makeQuestionText()
+            //setText(questionLists[currentIndex].textResId)
+        }
+    }
+
+    private fun makeQuestionText(): String {
+        return (currentIndex + 1).toString() + ". " + getString(questionLists[currentIndex].textResId)
+    }
+
     private fun checkAnswer(userAnswer: Boolean) {
         val correctAnswer = questionLists[currentIndex].answer
 
@@ -80,14 +92,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MyInterface {
         } else {
             R.string.wrong_answer
         }
-
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
     }
 
-
-    override fun getQuestionString(): ArrayList<QuestionEntity> {
-//        Log.w("1111", "getQuestionString() :: ")
-//        return getString(R.string.question_asia)
+    override fun getQuestionList(): ArrayList<QuestionEntity> {
         questionLists.add(QuestionEntity(R.string.question_australia, true))
         questionLists.add(QuestionEntity(R.string.question_ocean, true))
         questionLists.add(QuestionEntity(R.string.question_mideast, false))
@@ -96,5 +104,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MyInterface {
         questionLists.add(QuestionEntity(R.string.question_asia, true))
 
         return questionLists
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
     }
 }
