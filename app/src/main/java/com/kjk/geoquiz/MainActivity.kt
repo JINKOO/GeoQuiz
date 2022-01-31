@@ -19,9 +19,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MyInterface {
     private var model = QuestionModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "onCreate: ")
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
         setListener()
         initData()
     }
@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MyInterface {
             previousButton.setOnClickListener(this@MainActivity)
             nextButton.setOnClickListener(this@MainActivity)
             questionTextView.setOnClickListener(this@MainActivity)
+            submitButton.setOnClickListener(this@MainActivity)
         }
     }
 
@@ -52,10 +53,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MyInterface {
                     checkAnswer(false)
                 }
                 questionTextView, nextButton -> {
-                   changeQuestion(1)
+                    changeQuestion(1)
                 }
                 previousButton -> {
                     changeQuestion(-1)
+                }
+                submitButton -> {
+                    //TODO 3장 챌린지 2: 점수 보여 주기
                 }
             }
         }
@@ -77,6 +81,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MyInterface {
         binding.questionTextView.run {
             text = makeQuestionText()
             //setText(questionLists[currentIndex].textResId)
+            if (questionLists[currentIndex].isSolved) {
+                setButtonDisable()
+            } else {
+                setButtonEnable()
+            }
         }
     }
 
@@ -86,8 +95,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MyInterface {
 
     private fun checkAnswer(userAnswer: Boolean) {
         val correctAnswer = questionLists[currentIndex].answer
-
         val messageResId = if (userAnswer == correctAnswer) {
+            questionLists[currentIndex].isSolved = true
+            setButtonDisable()
             R.string.answer
         } else {
             R.string.wrong_answer
@@ -95,15 +105,61 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MyInterface {
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
     }
 
+    private fun setButtonDisable() {
+        // 사용자가 정답을 맞춘 문제를 다시 볼때에는 true, false button을 비활성화 한다.
+        binding.run {
+            trueButton.isEnabled = false
+            falseButton.isEnabled = false
+        }
+    }
+
+    private fun setButtonEnable() {
+        binding.run {
+            trueButton.isEnabled = true
+            falseButton.isEnabled = true
+        }
+    }
+
     override fun getQuestionList(): ArrayList<QuestionEntity> {
-        questionLists.add(QuestionEntity(R.string.question_australia, true))
-        questionLists.add(QuestionEntity(R.string.question_ocean, true))
-        questionLists.add(QuestionEntity(R.string.question_mideast, false))
-        questionLists.add(QuestionEntity(R.string.question_africa, false))
-        questionLists.add(QuestionEntity(R.string.question_americas, true))
-        questionLists.add(QuestionEntity(R.string.question_asia, true))
+        questionLists.add(QuestionEntity(R.string.question_australia, answer = true, isSolved = false))
+        questionLists.add(QuestionEntity(R.string.question_ocean, answer = true, isSolved = false))
+        questionLists.add(QuestionEntity(R.string.question_mideast, answer = false, isSolved = false))
+        questionLists.add(QuestionEntity(R.string.question_africa, answer = false, isSolved = false))
+        questionLists.add(QuestionEntity(R.string.question_americas, answer = true, isSolved = false))
+        questionLists.add(QuestionEntity(R.string.question_asia, answer = true, isSolved = false))
 
         return questionLists
+    }
+
+    //  Activity 생명 주기 Log 찍기.
+    override fun onRestart() {
+        super.onRestart()
+        Log.d(TAG, "onRestart: ")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "onStart: ")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume: ")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause: ")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "onStop: ")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy: ")
     }
 
     companion object {
