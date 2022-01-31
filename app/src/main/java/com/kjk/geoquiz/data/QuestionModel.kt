@@ -67,7 +67,6 @@ class QuestionModel {
     private var mInterface: MyInterface? = null
 
     fun setInterface(myInterface: MyInterface) {
-        Log.w("1111", "setInterface()")
         this.mInterface = myInterface
     }
 
@@ -75,10 +74,7 @@ class QuestionModel {
      * 질문 리스트를 생성하는 메소드
      */
     fun createQuestionList() {
-        /** 이렇게 하면 MainActivity에서 Override한 함수가 실행 된다. */
-//        val testString = mInterface?.getQuestionString()
-//        Log.w("1111", "createQuestionString() :: ${testString}")
-        questionList = mInterface?.getQuestionString()!!
+        questionList = mInterface?.getQuestionList()!!
     }
 
     fun updateQuestion(position: Int) {
