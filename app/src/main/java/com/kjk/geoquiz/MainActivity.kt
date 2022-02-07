@@ -13,12 +13,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
     private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
-//    private var questionLists: ArrayList<QuestionEntity> = ArrayList()
-//    private var currentIndex = 0
-
-    // viewModel추가로 주석처리
-//    private var model = QuestionModel()
-
     // viewModel선언
     private val quizViewModel: QuizViewModel by lazy {
         ViewModelProvider(this@MainActivity).get(QuizViewModel::class.java)
@@ -33,8 +27,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
     }
 
     private fun initData() {
-//        model.setInterface(this)
-//        model.createQuestionList()
         quizViewModel.setQuestionList()
         updateQuestion()
     }
@@ -73,18 +65,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
             }
         }
     }
-
-//    private fun changeQuestion(amount: Int) {
-//        if (isStartIndex()) {
-//            currentIndex = questionLists.size
-//        }
-//        currentIndex = (currentIndex + amount) % questionLists.size
-//        updateQuestion()
-//    }
-
-//    private fun isStartIndex(): Boolean {
-//        return currentIndex == 0
-//    }
 
     private fun updateQuestion() {
         binding.questionTextView.run {
