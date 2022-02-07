@@ -5,30 +5,37 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import com.kjk.geoquiz.data.QuestionEntity
-import com.kjk.geoquiz.data.QuestionModel
+import androidx.lifecycle.ViewModelProvider
 import com.kjk.geoquiz.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity(), View.OnClickListener, MyInterface {
+class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ {
 
     private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
-    private var questionLists: ArrayList<QuestionEntity> = ArrayList()
-    private var currentIndex = 0
-    private var model = QuestionModel()
+//    private var questionLists: ArrayList<QuestionEntity> = ArrayList()
+//    private var currentIndex = 0
+
+    // viewModel추가로 주석처리
+//    private var model = QuestionModel()
+
+    // viewModel선언
+    private val quizViewModel: QuizViewModel by lazy {
+        ViewModelProvider(this@MainActivity).get(QuizViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG, "onCreate: ")
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate: ")
         setContentView(binding.root)
         setListener()
         initData()
     }
 
     private fun initData() {
-        model.setInterface(this)
-        model.createQuestionList()
+//        model.setInterface(this)
+//        model.createQuestionList()
+        quizViewModel.setQuestionList()
         updateQuestion()
     }
 
@@ -53,10 +60,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MyInterface {
                     checkAnswer(false)
                 }
                 questionTextView, nextButton -> {
-                    changeQuestion(1)
+                    quizViewModel.changeQuestion(1)
+                    updateQuestion()
                 }
                 previousButton -> {
-                    changeQuestion(-1)
+                    quizViewModel.changeQuestion(-1)
+                    updateQuestion()
                 }
                 submitButton -> {
                     //TODO 3장 챌린지 2: 점수 보여 주기
@@ -65,23 +74,23 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MyInterface {
         }
     }
 
-    private fun changeQuestion(amount: Int) {
-        if (isStartIndex()) {
-            currentIndex = questionLists.size
-        }
-        currentIndex = (currentIndex + amount) % questionLists.size
-        updateQuestion()
-    }
+//    private fun changeQuestion(amount: Int) {
+//        if (isStartIndex()) {
+//            currentIndex = questionLists.size
+//        }
+//        currentIndex = (currentIndex + amount) % questionLists.size
+//        updateQuestion()
+//    }
 
-    private fun isStartIndex(): Boolean {
-        return currentIndex == 0
-    }
+//    private fun isStartIndex(): Boolean {
+//        return currentIndex == 0
+//    }
 
     private fun updateQuestion() {
         binding.questionTextView.run {
             text = makeQuestionText()
             //setText(questionLists[currentIndex].textResId)
-            if (questionLists[currentIndex].isSolved) {
+            if (quizViewModel.currentQuestionIsSolved) {
                 setButtonDisable()
             } else {
                 setButtonEnable()
@@ -90,13 +99,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MyInterface {
     }
 
     private fun makeQuestionText(): String {
-        return (currentIndex + 1).toString() + ". " + getString(questionLists[currentIndex].textResId)
+        return (quizViewModel.currentIndex + 1).toString() + ". " + getString(quizViewModel.currentQuestionText)
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
-        val correctAnswer = questionLists[currentIndex].answer
+        val correctAnswer = quizViewModel.currentQuestionAnswer
         val messageResId = if (userAnswer == correctAnswer) {
-            questionLists[currentIndex].isSolved = true
+            quizViewModel.run {
+                getQuestionList()[currentIndex].isSolved = true
+            }
             setButtonDisable()
             R.string.answer
         } else {
@@ -120,16 +131,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MyInterface {
         }
     }
 
-    override fun getQuestionList(): ArrayList<QuestionEntity> {
-        questionLists.add(QuestionEntity(R.string.question_australia, answer = true, isSolved = false))
-        questionLists.add(QuestionEntity(R.string.question_ocean, answer = true, isSolved = false))
-        questionLists.add(QuestionEntity(R.string.question_mideast, answer = false, isSolved = false))
-        questionLists.add(QuestionEntity(R.string.question_africa, answer = false, isSolved = false))
-        questionLists.add(QuestionEntity(R.string.question_americas, answer = true, isSolved = false))
-        questionLists.add(QuestionEntity(R.string.question_asia, answer = true, isSolved = false))
-
-        return questionLists
-    }
+//    override fun getQuestionList(): ArrayList<QuestionEntity> {
+//        questionLists.add(QuestionEntity(R.string.question_australia, answer = true, isSolved = false))
+//        questionLists.add(QuestionEntity(R.string.question_ocean, answer = true, isSolved = false))
+//        questionLists.add(QuestionEntity(R.string.question_mideast, answer = false, isSolved = false))
+//        questionLists.add(QuestionEntity(R.string.question_africa, answer = false, isSolved = false))
+//        questionLists.add(QuestionEntity(R.string.question_americas, answer = true, isSolved = false))
+//        questionLists.add(QuestionEntity(R.string.question_asia, answer = true, isSolved = false))
+//
+//        return questionLists
+//    }
 
     //  Activity 생명 주기 Log 찍기.
     override fun onRestart() {
