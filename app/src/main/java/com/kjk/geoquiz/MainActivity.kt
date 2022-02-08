@@ -1,5 +1,6 @@
 package com.kjk.geoquiz
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -46,6 +47,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
             nextButton.setOnClickListener(this@MainActivity)
             questionTextView.setOnClickListener(this@MainActivity)
             submitButton.setOnClickListener(this@MainActivity)
+            cheatButton?.setOnClickListener(this@MainActivity)
         }
     }
 
@@ -68,6 +70,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
                 }
                 submitButton -> {
                     //TODO 3장 챌린지 2: 점수 보여 주기
+                }
+                cheatButton -> {
+                    // CheatActivity로 이동한다.
+                    val intent = Intent(this@MainActivity, CheatActivity::class.java)
+                    startActivity(intent)
                 }
             }
         }

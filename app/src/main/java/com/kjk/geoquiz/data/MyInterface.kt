@@ -1,4 +1,4 @@
-package com.kjk.geoquiz
+package com.kjk.geoquiz.data
 
 import com.kjk.geoquiz.data.QuestionEntity
 
