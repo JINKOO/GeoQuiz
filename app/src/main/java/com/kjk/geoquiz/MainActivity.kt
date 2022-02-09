@@ -73,8 +73,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
                 }
                 cheatButton -> {
                     // CheatActivity로 이동한다.
-                    val intent = Intent(this@MainActivity, CheatActivity::class.java)
-                    startActivity(intent)
+                    // val intent = Intent(this@MainActivity, CheatActivity::class.java)
+                    // intent.putExtra(ANSWER_IS_TRUE, quizViewModel.currentQeustionAnswer)
+
+                    // 원래는 MainActivity -> CheatActivity로 이동할 때, 위와 같이 사용하지만,
+                    // MainActivity나 App의 다른 Activity에서 CheatActivity가 어떤 IntentExtra를 받는 지 몰라도 되기 때문에, 캡슐화 한다.
+                    val intent = CheatActivity.newIntent(this@MainActivity, quizViewModel.currentQuestionAnswer)
+                    //startActivity(intent)
+                    startActivityForResult(intent, REQUEST_CODE_CHEAT)
                 }
             }
         }
@@ -125,17 +131,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
         }
     }
 
-//    override fun getQuestionList(): ArrayList<QuestionEntity> {
-//        questionLists.add(QuestionEntity(R.string.question_australia, answer = true, isSolved = false))
-//        questionLists.add(QuestionEntity(R.string.question_ocean, answer = true, isSolved = false))
-//        questionLists.add(QuestionEntity(R.string.question_mideast, answer = false, isSolved = false))
-//        questionLists.add(QuestionEntity(R.string.question_africa, answer = false, isSolved = false))
-//        questionLists.add(QuestionEntity(R.string.question_americas, answer = true, isSolved = false))
-//        questionLists.add(QuestionEntity(R.string.question_asia, answer = true, isSolved = false))
-//
-//        return questionLists
-//    }
-
     //  Activity 생명 주기 Log 찍기.
     override fun onRestart() {
         super.onRestart()
@@ -179,5 +174,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
     companion object {
         private const val TAG = "MainActivity"
         private const val KEY_INDEX = "index"
+        private const val REQUEST_CODE_CHEAT = 0
+        private const val ANSWER_IS_TRUE = "com.kjk.geoquiz.answer_is_true"
     }
 }
