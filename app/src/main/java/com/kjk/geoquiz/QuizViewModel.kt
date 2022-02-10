@@ -9,6 +9,7 @@ class QuizViewModel : ViewModel() {
     private var questionLists: ArrayList<QuestionEntity> = ArrayList()
 
     var currentIndex = 0
+    var isCheated = false
 
     val currentQuestionAnswer: Boolean
         get() = questionLists[currentIndex].answer
