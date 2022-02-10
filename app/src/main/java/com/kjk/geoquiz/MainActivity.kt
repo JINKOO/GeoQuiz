@@ -7,6 +7,8 @@ import android.os.PersistableBundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
 import com.kjk.geoquiz.databinding.ActivityMainBinding
 
@@ -20,18 +22,26 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
         ViewModelProvider(this@MainActivity).get(QuizViewModel::class.java)
     }
 
+    private lateinit var startCheatActivityForResult: ActivityResultLauncher<Intent>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate: ")
 
         // SIS에서 데이터를 가져온다.
         // 최초 실행인 경우에는 0이다. null체크한다.
-        val currentIndex = savedInstanceState?.getInt(KEY_INDEX, 0) ?: 0
-        quizViewModel.currentIndex = currentIndex
+        quizViewModel.currentIndex = savedInstanceState?.getInt(KEY_INDEX, 0) ?: 0
 
         setContentView(binding.root)
         setListener()
         initData()
+
+        // registerForActivityResult
+        startCheatActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                quizViewModel.isCheated = result.data?.getBooleanExtra(CheatActivity.EXTRA_ANSWER_SHOWN, false) ?: false
+            }
+        }
     }
 
     private fun initData() {
@@ -73,14 +83,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
                 }
                 cheatButton -> {
                     // CheatActivity로 이동한다.
-                    // val intent = Intent(this@MainActivity, CheatActivity::class.java)
-                    // intent.putExtra(ANSWER_IS_TRUE, quizViewModel.currentQeustionAnswer)
+//                    val intent = Intent(this@MainActivity, CheatActivity::class.java)
+//                    intent.putExtra(ANSWER_IS_TRUE, quizViewModel.currentQeustionAnswer)
 
                     // 원래는 MainActivity -> CheatActivity로 이동할 때, 위와 같이 사용하지만,
                     // MainActivity나 App의 다른 Activity에서 CheatActivity가 어떤 IntentExtra를 받는 지 몰라도 되기 때문에, 캡슐화 한다.
                     val intent = CheatActivity.newIntent(this@MainActivity, quizViewModel.currentQuestionAnswer)
-                    //startActivity(intent)
-                    startActivityForResult(intent, REQUEST_CODE_CHEAT)
+//                    startActivity(intent)
+//                    startActivityForResult(intent, REQUEST_CODE_CHEAT)
+                    startCheatActivityForResult.launch(intent)
                 }
             }
         }
@@ -89,7 +100,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
     private fun updateQuestion() {
         binding.questionTextView.run {
             text = makeQuestionText()
-            //setText(questionLists[currentIndex].textResId)
             if (quizViewModel.currentQuestionIsSolved) {
                 setButtonDisable()
             } else {
@@ -103,17 +113,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
-        val correctAnswer = quizViewModel.currentQuestionAnswer
-        val messageResId = if (userAnswer == correctAnswer) {
-            quizViewModel.run {
-                getQuestionList()[currentIndex].isSolved = true
-            }
-            setButtonDisable()
-            R.string.answer
-        } else {
-            R.string.wrong_answer
-        }
+        val messageResId = getMessageId(userAnswer, quizViewModel.currentQuestionAnswer)
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun getMessageId(userAnswer: Boolean, correctAnswer: Boolean): Int {
+        return when {
+            quizViewModel.isCheated -> R.string.judgement_toast
+            userAnswer == correctAnswer -> {
+                quizViewModel.run { getQuestionList()[currentIndex].isSolved = true }
+                setButtonDisable()
+                R.string.answer
+            }
+            else -> R.string.wrong_answer
+        }
     }
 
     private fun setButtonDisable() {
