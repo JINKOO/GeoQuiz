@@ -20,6 +20,12 @@ class CheatActivity : AppCompatActivity(), View.OnClickListener {
         ViewModelProvider(this@CheatActivity).get(CheatViewModel::class.java)
     }
 
+    // TODO 4장 챌린지 2
+    private val quizViewModel by lazy {
+        ViewModelProvider(this@CheatActivity).get(QuizViewModel::class.java)
+    }
+
+
     private var answerIsTrue = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +52,7 @@ class CheatActivity : AppCompatActivity(), View.OnClickListener {
         this.answerIsTrue = intent.getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false)
         Log.d(TAG, "initData: ${answerIsTrue}")
         
-        // TODO :: 4장 챌린지1 -> (Done)
+        // TODO :: 4장 챌린지 1 -> (Done)
         if (cheatViewModel.isAnswerShown) {
             showAnswer()
             setAnswerShownResult(cheatViewModel.isAnswerShown)
