@@ -17,20 +17,31 @@ class QuizViewModel : ViewModel() {
     val currentQuestionText: Int
         get() = questionLists[currentIndex].textResId
 
-    val currentQuestionIsSolved: Boolean
+    var currentQuestionIsSolved: Boolean = false
         get() = questionLists[currentIndex].isSolved
+        set(value) {
+            questionLists[currentIndex].isSolved = value
+            field = value
+        }
+
+    var currentQuestionIsCheated: Boolean = false
+        get() = questionLists[currentIndex].isCheated
+        set(value) {
+            questionLists[currentIndex].isCheated = value
+            field = value
+        }
 
     init {
         Log.d(TAG, "ViewModel instance created")
     }
 
     fun setQuestionList() {
-        questionLists.add(QuestionEntity(R.string.question_australia, answer = true, isSolved = false))
-        questionLists.add(QuestionEntity(R.string.question_ocean, answer = true, isSolved = false))
-        questionLists.add(QuestionEntity(R.string.question_mideast, answer = false, isSolved = false))
-        questionLists.add(QuestionEntity(R.string.question_africa, answer = false, isSolved = false))
-        questionLists.add(QuestionEntity(R.string.question_americas, answer = true, isSolved = false))
-        questionLists.add(QuestionEntity(R.string.question_asia, answer = true, isSolved = false))
+        questionLists.add(QuestionEntity(R.string.question_australia, answer = true, isSolved = false, isCheated = false))
+        questionLists.add(QuestionEntity(R.string.question_ocean, answer = true, isSolved = false, isCheated = false))
+        questionLists.add(QuestionEntity(R.string.question_mideast, answer = false, isSolved = false, isCheated = false))
+        questionLists.add(QuestionEntity(R.string.question_africa, answer = false, isSolved = false, isCheated = false))
+        questionLists.add(QuestionEntity(R.string.question_americas, answer = true, isSolved = false, isCheated = false))
+        questionLists.add(QuestionEntity(R.string.question_asia, answer = true, isSolved = false, isCheated = false))
     }
 
     fun getQuestionList(): ArrayList<QuestionEntity> {

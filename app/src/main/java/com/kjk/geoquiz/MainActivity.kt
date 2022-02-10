@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
         // registerForActivityResult
         startCheatActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
-                quizViewModel.isCheated = result.data?.getBooleanExtra(CheatActivity.EXTRA_ANSWER_SHOWN, false) ?: false
+                quizViewModel.currentQuestionIsCheated = result.data?.getBooleanExtra(CheatActivity.EXTRA_ANSWER_SHOWN, false) ?: false
             }
         }
     }
@@ -119,9 +119,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
 
     private fun getMessageId(userAnswer: Boolean, correctAnswer: Boolean): Int {
         return when {
-            quizViewModel.isCheated -> R.string.judgement_toast
+            quizViewModel.currentQuestionIsCheated -> R.string.judgement_toast
             userAnswer == correctAnswer -> {
-                quizViewModel.run { getQuestionList()[currentIndex].isSolved = true }
+                quizViewModel.run { quizViewModel.currentQuestionIsSolved = true }
                 setButtonDisable()
                 R.string.answer
             }
