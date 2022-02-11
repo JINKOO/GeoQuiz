@@ -1,6 +1,9 @@
 package com.kjk.geoquiz
 
+import android.annotation.SuppressLint
+import android.app.ActivityOptions
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -9,6 +12,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.ViewModelProvider
 import com.kjk.geoquiz.databinding.ActivityMainBinding
 
@@ -61,9 +65,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
         }
     }
 
-    override fun onClick(v: View?) {
+    @SuppressLint("RestrictedApi")
+    override fun onClick(view: View?) {
         binding.run {
-            when (v) {
+            when (view) {
                 trueButton -> {
                     checkAnswer(true)
                 }
@@ -88,10 +93,25 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
 
                     // 원래는 MainActivity -> CheatActivity로 이동할 때, 위와 같이 사용하지만,
                     // MainActivity나 App의 다른 Activity에서 CheatActivity가 어떤 IntentExtra를 받는 지 몰라도 되기 때문에, 캡슐화 한다.
-                    val intent = CheatActivity.newIntent(this@MainActivity, quizViewModel.currentQuestionAnswer)
+                    val intent = CheatActivity.newIntent(
+                        this@MainActivity,
+                        quizViewModel.currentQuestionAnswer
+                    )
 //                    startActivity(intent)
 //                    startActivityForResult(intent, REQUEST_CODE_CHEAT)
-                    startCheatActivityForResult.launch(intent)
+                    Log.d(TAG, "onClick: ${Build.VERSION.SDK_INT}")
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        val options = ActivityOptionsCompat.makeClipRevealAnimation(
+                            view!!,
+                            0,
+                            0,
+                            cheatButton!!.width,
+                            cheatButton.height
+                        )
+                        startCheatActivityForResult.launch(intent, options)
+                    } else {
+                        startCheatActivityForResult.launch(intent)
+                    }
                 }
             }
         }
