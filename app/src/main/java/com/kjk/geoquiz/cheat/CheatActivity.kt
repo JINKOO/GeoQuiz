@@ -21,12 +21,6 @@ class CheatActivity : AppCompatActivity(), View.OnClickListener {
         ViewModelProvider(this@CheatActivity).get(CheatViewModel::class.java)
     }
 
-    // TODO 4장 챌린지 2
-    private val quizViewModel by lazy {
-        ViewModelProvider(this@CheatActivity).get(QuizViewModel::class.java)
-    }
-
-
     private var answerIsTrue = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,13 +28,8 @@ class CheatActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(binding.root)
         
         Log.d(TAG, "onCreate()")
-        checkSavedInstacneStateData(savedInstanceState)
         setListener()
-        initData()
-    }
-    
-    private fun checkSavedInstacneStateData(savedInstanceState: Bundle?) {
-        cheatViewModel.isAnswerShown = savedInstanceState?.getBoolean(KEY_IS_CHEATED) ?: false
+        initData(savedInstanceState)
     }
 
     private fun setListener() {
@@ -49,7 +38,8 @@ class CheatActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun initData() {
+    private fun initData(savedInstanceState: Bundle?) {
+        cheatViewModel.isAnswerShown = savedInstanceState?.getBoolean(KEY_IS_CHEATED) ?: false
         this.answerIsTrue = intent.getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false)
         Log.d(TAG, "initData: ${answerIsTrue}")
         
@@ -76,7 +66,7 @@ class CheatActivity : AppCompatActivity(), View.OnClickListener {
         val intent = Intent().apply {
             putExtra(EXTRA_ANSWER_SHOWN, isAnswerShown)
         }
-        setResult(RESULT_OK, intent)
+        setResult(9000, intent)
     }
 
     override fun onClick(v: View?) {

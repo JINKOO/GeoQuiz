@@ -44,6 +44,14 @@
         android:layout_height="wrap_content"
         android:text="@string/cheat_button" />
 
+    <TextView
+        android:id="@+id/remain_cheat_count_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/remain_cheating_count"
+        android:textStyle="bold"/>
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

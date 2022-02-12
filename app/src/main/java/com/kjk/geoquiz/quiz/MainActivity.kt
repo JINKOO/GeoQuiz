@@ -15,8 +15,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.kjk.geoquiz.R
 import com.kjk.geoquiz.cheat.CheatActivity
 import com.kjk.geoquiz.databinding.ActivityMainBinding
+import com.kjk.geoquiz.result.ResultActivity
 
-class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ {
+class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     // viewBinding
     private val binding by lazy {
@@ -29,32 +30,53 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
     }
 
     // CheatActivity로 이동
-    private lateinit var startCheatActivityForResult: ActivityResultLauncher<Intent>
+    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate: ")
-
-        // SIS에서 데이터를 가져온다.
-        // 최초 실행인 경우에는 0이다. null체크한다.
-        quizViewModel.currentIndex = savedInstanceState?.getInt(KEY_INDEX, 0) ?: 0
-
         setContentView(binding.root)
         setListener()
-        initData()
+        initData(savedInstanceState)
 
         // registerForActivityResult
-        startCheatActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
+        activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == 9001) {
                 quizViewModel.currentQuestionIsCheated = result.data?.getBooleanExtra(CheatActivity.EXTRA_ANSWER_SHOWN, false) ?: false
+                // TODO 7장 챌린지 2 :: 컨닝 최대 횟수 3회이다. '컨닝하기' 버튼 비활성화.
+                // '정답보기'선택 하지 않고, 돌아오는 경우가 있기 때문에 다음과 같이 처리한다.
+                if (quizViewModel.currentQuestionIsCheated) {
+                    quizViewModel.cheatCount -= 1
+                    setRemainCheatCountText()
+                    if (!quizViewModel.isAbleToCheat()) {
+                        binding.cheatButton?.let {
+                            it.isEnabled = false
+                        }
+                    }
+                }
+            } else if (result.resultCode == 9002) {
+                Log.d(TAG, "onCreate: from ResultActivity")
             }
         }
     }
 
-    private fun initData() {
+    private fun initData(savedInstanceState: Bundle?) {
+        // SIS에서 데이터를 가져온다.
+        // 최초 실행인 경우에는 0이다. null체크한다.
+        quizViewModel.apply {
+            currentIndex= savedInstanceState?.getInt(KEY_INDEX, 0) ?: 0
+            cheatCount = savedInstanceState?.getInt(KEY_REMAIN_CHEAT_COUNT, 0) ?: QuizViewModel.CHEAT_MAX_COUNT
+        }
         setTextSDKVersion()
         quizViewModel.setQuestionList()
         updateQuestion()
+        setRemainCheatCountText()
+    }
+
+    private fun setRemainCheatCountText() {
+        binding.remainCheatCountTextView?.let {
+            it.text = getString(R.string.remain_cheating_count, quizViewModel.cheatCount)
+        }
     }
 
     private fun setListener() {
@@ -89,6 +111,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
                 }
                 submitButton -> {
                     //TODO 3장 챌린지 2: 점수 보여 주기
+                    checkAllSolve()
                 }
                 cheatButton -> {
                     // CheatActivity로 이동한다.
@@ -96,13 +119,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
 //                    intent.putExtra(ANSWER_IS_TRUE, quizViewModel.currentQeustionAnswer)
                     // 원래는 MainActivity -> CheatActivity로 이동할 때, 위와 같이 사용하지만,
                     // MainActivity나 App의 다른 Activity에서 CheatActivity가 어떤 IntentExtra를 받는 지 몰라도 되기 때문에, 캡슐화 한다.
-                    val intent = CheatActivity.newIntent(
-                        this@MainActivity,
-                        quizViewModel.currentQuestionAnswer
-                    )
-//                    startActivity(intent)
-//                    startActivityForResult(intent, REQUEST_CODE_CHEAT)
-                    Log.d(TAG, "onClick: ${Build.VERSION.SDK_INT}")
+                    val intent = CheatActivity.newIntent(this@MainActivity, quizViewModel.currentQuestionAnswer)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         val options = ActivityOptionsCompat.makeClipRevealAnimation(
                             view!!,
@@ -111,13 +128,26 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
                             view.width,
                             view.height
                         )
-                        startCheatActivityForResult.launch(intent, options)
+                        activityResultLauncher.launch(intent, options)
                     } else {
-                        startCheatActivityForResult.launch(intent)
+                        activityResultLauncher.launch(intent)
                     }
                 }
             }
         }
+    }
+
+    private fun checkAllSolve() {
+        if (quizViewModel.isAllSolved()) {
+            moveToResultActivity()
+        } else {
+            showToast(R.string.exist_non_solved_problem)
+        }
+    }
+
+    private fun moveToResultActivity() {
+        val intent = Intent(this@MainActivity, ResultActivity::class.java)
+        activityResultLauncher.launch(intent)
     }
 
     private fun updateQuestion() {
@@ -131,25 +161,29 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
         }
     }
 
-    // viewModel에 있어야 할 놈.
     private fun makeQuestionText(): String {
         return (quizViewModel.currentIndex + 1).toString() + ". " + getString(quizViewModel.currentQuestionText)
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
-        val messageResId = getMessageId(userAnswer, quizViewModel.currentQuestionAnswer)
-        Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
+        if (quizViewModel.currentQuestionIsCheated) {
+            showToast(R.string.judgement_toast)
+        }
+        val messageResId = getAnswerMessageId(userAnswer, quizViewModel.currentQuestionAnswer)
+        showToast(messageResId)
     }
 
-    private fun getMessageId(userAnswer: Boolean, correctAnswer: Boolean): Int {
-        return when {
-            quizViewModel.currentQuestionIsCheated -> R.string.judgement_toast
-            userAnswer == correctAnswer -> {
-                quizViewModel.run { quizViewModel.currentQuestionIsSolved = true }
-                setButtonDisable()
-                R.string.answer
-            }
-            else -> R.string.wrong_answer
+    private fun showToast(stringResId: Int) {
+        Toast.makeText(this@MainActivity, stringResId, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun getAnswerMessageId(userAnswer: Boolean, correctAnswer: Boolean): Int {
+        return if(userAnswer == correctAnswer) {
+            quizViewModel.run { quizViewModel.currentQuestionIsSolved = true }
+            setButtonDisable()
+            R.string.answer
+        } else {
+            R.string.wrong_answer
         }
     }
 
@@ -202,7 +236,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         Log.d(TAG, "onSaveInstanceState() called")
-        outState.putInt(KEY_INDEX, quizViewModel.currentIndex)
+        outState.run {
+            putInt(KEY_INDEX, quizViewModel.currentIndex)
+            putInt(KEY_REMAIN_CHEAT_COUNT, quizViewModel.cheatCount)
+        }
     }
 
     override fun onStop() {
@@ -218,6 +255,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
     companion object {
         private const val TAG = "MainActivity"
         private const val KEY_INDEX = "index"
+        private const val KEY_REMAIN_CHEAT_COUNT = "remainCheatCount"
         private const val REQUEST_CODE_CHEAT = 0
         private const val ANSWER_IS_TRUE = "com.kjk.geoquiz.answer_is_true"
     }

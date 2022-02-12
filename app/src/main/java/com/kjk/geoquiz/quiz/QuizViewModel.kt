@@ -11,6 +11,8 @@ class QuizViewModel : ViewModel() {
     var currentIndex = 0
     var isCheated = false
 
+    var cheatCount = CHEAT_MAX_COUNT
+
     val currentQuestionAnswer: Boolean
         get() = questionLists[currentIndex].answer
 
@@ -59,6 +61,20 @@ class QuizViewModel : ViewModel() {
         return currentIndex == 0
     }
 
+    fun isAbleToCheat(): Boolean {
+        return cheatCount > 0
+    }
+
+    fun isAllSolved(): Boolean {
+        questionLists.forEach {
+            if(!it.isSolved) {
+                return false
+            }
+        }
+        return true
+    }
+
+
     override fun onCleared() {
         super.onCleared()
         Log.d(TAG, "onCleared: ViewModel instance about to be destroyed")
@@ -66,5 +82,6 @@ class QuizViewModel : ViewModel() {
 
     companion object {
         private const val TAG = "QuizViewModel"
+        const val CHEAT_MAX_COUNT = 3
     }
 }
