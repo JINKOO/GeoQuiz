@@ -1,4 +1,4 @@
-package com.kjk.geoquiz
+package com.kjk.geoquiz.cheat
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
