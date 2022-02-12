@@ -1,12 +1,10 @@
-package com.kjk.geoquiz
+package com.kjk.geoquiz.quiz
 
 import android.annotation.SuppressLint
-import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -14,18 +12,23 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.ViewModelProvider
+import com.kjk.geoquiz.R
+import com.kjk.geoquiz.cheat.CheatActivity
 import com.kjk.geoquiz.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ {
 
+    // viewBinding
     private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
-    // viewModel선언
+
+    // viewModel
     private val quizViewModel: QuizViewModel by lazy {
         ViewModelProvider(this@MainActivity).get(QuizViewModel::class.java)
     }
 
+    // CheatActivity로 이동
     private lateinit var startCheatActivityForResult: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +52,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
     }
 
     private fun initData() {
+        setTextSDKVersion()
         quizViewModel.setQuestionList()
         updateQuestion()
     }
@@ -90,7 +94,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
                     // CheatActivity로 이동한다.
 //                    val intent = Intent(this@MainActivity, CheatActivity::class.java)
 //                    intent.putExtra(ANSWER_IS_TRUE, quizViewModel.currentQeustionAnswer)
-
                     // 원래는 MainActivity -> CheatActivity로 이동할 때, 위와 같이 사용하지만,
                     // MainActivity나 App의 다른 Activity에서 CheatActivity가 어떤 IntentExtra를 받는 지 몰라도 되기 때문에, 캡슐화 한다.
                     val intent = CheatActivity.newIntent(
@@ -105,8 +108,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
                             view!!,
                             0,
                             0,
-                            cheatButton!!.width,
-                            cheatButton.height
+                            view.width,
+                            view.height
                         )
                         startCheatActivityForResult.launch(intent, options)
                     } else {
@@ -128,6 +131,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
         }
     }
 
+    // viewModel에 있어야 할 놈.
     private fun makeQuestionText(): String {
         return (quizViewModel.currentIndex + 1).toString() + ". " + getString(quizViewModel.currentQuestionText)
     }
@@ -161,6 +165,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener/*, MyInterface*/ 
         binding.run {
             trueButton.isEnabled = true
             falseButton.isEnabled = true
+        }
+    }
+
+    // TODO :: 7장 챌린지 1
+    private fun setTextSDKVersion() {
+        binding.sdkVersionTextView.apply {
+            text = getString(R.string.sdk_version_info, Build.VERSION.SDK_INT)
         }
     }
 

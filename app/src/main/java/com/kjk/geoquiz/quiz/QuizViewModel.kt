@@ -1,8 +1,8 @@
-package com.kjk.geoquiz
+package com.kjk.geoquiz.quiz
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.kjk.geoquiz.data.QuestionEntity
+import com.kjk.geoquiz.R
 
 class QuizViewModel : ViewModel() {
 

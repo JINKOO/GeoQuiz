@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:orientation="vertical"
-    tools:context=".CheatActivity">
+    tools:context=".cheat.CheatActivity">
 
     <TextView
         android:id="@+id/warning_text_view"
