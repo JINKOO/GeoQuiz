@@ -28,7 +28,7 @@
     <!-- ResultActivity -->
     <string name="result">결과</string>
     <string name="correct_answers">맞은 문제 : %1$d / %2$d </string>
-    <string name="answer_rate">정답률 : %1$f</string>
+    <string name="answer_rate">정답률 : %1$f %%</string>
     <string name="confirm_result">확인</string>
 
 </resources>
