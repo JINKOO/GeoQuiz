@@ -26,6 +26,13 @@ class QuizViewModel : ViewModel() {
             field = value
         }
 
+    var currentQuestionIsCorrect: Boolean = false
+        get() = questionLists[currentIndex].isCorrect
+        set(value) {
+            questionLists[currentIndex].isCorrect = value
+            field = value
+        }
+
     var currentQuestionIsCheated: Boolean = false
         get() = questionLists[currentIndex].isCheated
         set(value) {
@@ -38,12 +45,12 @@ class QuizViewModel : ViewModel() {
     }
 
     fun setQuestionList() {
-        questionLists.add(QuestionEntity(R.string.question_australia, answer = true, isSolved = false, isCheated = false))
-        questionLists.add(QuestionEntity(R.string.question_ocean, answer = true, isSolved = false, isCheated = false))
-        questionLists.add(QuestionEntity(R.string.question_mideast, answer = false, isSolved = false, isCheated = false))
-        questionLists.add(QuestionEntity(R.string.question_africa, answer = false, isSolved = false, isCheated = false))
-        questionLists.add(QuestionEntity(R.string.question_americas, answer = true, isSolved = false, isCheated = false))
-        questionLists.add(QuestionEntity(R.string.question_asia, answer = true, isSolved = false, isCheated = false))
+        questionLists.add(QuestionEntity(R.string.question_australia, answer = true, isSolved = false, isCorrect = false, isCheated = false))
+        questionLists.add(QuestionEntity(R.string.question_ocean, answer = true, isSolved = false, isCorrect = false, isCheated = false))
+        questionLists.add(QuestionEntity(R.string.question_mideast, answer = false, isSolved = false, isCorrect = false, isCheated = false))
+        questionLists.add(QuestionEntity(R.string.question_africa, answer = false, isSolved = false, isCorrect = false, isCheated = false))
+        questionLists.add(QuestionEntity(R.string.question_americas, answer = true, isSolved = false, isCorrect = false, isCheated = false))
+        questionLists.add(QuestionEntity(R.string.question_asia, answer = true, isSolved = false, isCorrect = false, isCheated = false))
     }
 
     fun getQuestionList(): ArrayList<QuestionEntity> {

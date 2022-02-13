@@ -66,7 +66,7 @@ class CheatActivity : AppCompatActivity(), View.OnClickListener {
         val intent = Intent().apply {
             putExtra(EXTRA_ANSWER_SHOWN, isAnswerShown)
         }
-        setResult(9000, intent)
+        setResult(RESULT_OK, intent)
     }
 
     override fun onClick(v: View?) {
