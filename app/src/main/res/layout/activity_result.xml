@@ -29,18 +29,20 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
+            android:id="@+id/correct_answers_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/correct_problems"
+            android:text="@string/correct_answers"
             android:textStyle="bold"
             android:textSize="20dp"
             android:layout_marginTop="10dp"
             tools:text="맞은 문제 : 3 / 6"/>
 
         <TextView
+            android:id="@+id/answer_rate_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/score_percentage"
+            android:text="@string/answer_rate"
             android:textStyle="bold"
             android:textSize="20dp"
             android:layout_marginTop="10dp"
