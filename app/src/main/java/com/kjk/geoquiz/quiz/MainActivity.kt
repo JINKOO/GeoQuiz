@@ -29,7 +29,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         ViewModelProvider(this@MainActivity).get(QuizViewModel::class.java)
     }
 
-    // CheatActivity로 이동
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,23 +38,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         setListener()
         initData(savedInstanceState)
 
-        // registerForActivityResult
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == 9001) {
-                quizViewModel.currentQuestionIsCheated = result.data?.getBooleanExtra(CheatActivity.EXTRA_ANSWER_SHOWN, false) ?: false
-                // TODO 7장 챌린지 2 :: 컨닝 최대 횟수 3회이다. '컨닝하기' 버튼 비활성화.
-                // '정답보기'선택 하지 않고, 돌아오는 경우가 있기 때문에 다음과 같이 처리한다.
-                if (quizViewModel.currentQuestionIsCheated) {
-                    quizViewModel.cheatCount -= 1
-                    setRemainCheatCountText()
-                    if (!quizViewModel.isAbleToCheat()) {
-                        binding.cheatButton?.let {
-                            it.isEnabled = false
-                        }
-                    }
+            when(result.resultCode) {
+                RESULT_FROM_CHEAT -> {
+                    Log.d(TAG, "onCreate: cheatActivityResultLauncher")
+                    quizViewModel.currentQuestionIsCheated = result.data?.getBooleanExtra(CheatActivity.EXTRA_ANSWER_SHOWN, false) ?: false
+                    checkCheatButton()
                 }
-            } else if (result.resultCode == 9002) {
-                Log.d(TAG, "onCreate: from ResultActivity")
+                RESULT_FROM_RESULT -> {
+                    Log.d(TAG, "onCreate: resultActivityResultLauncher")
+                }
             }
         }
     }
@@ -71,6 +63,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         quizViewModel.setQuestionList()
         updateQuestion()
         setRemainCheatCountText()
+    }
+
+    private fun checkCheatButton() {
+        // TODO 7장 챌린지 2 :: 컨닝 최대 횟수 3회이다. '컨닝하기' 버튼 비활성화.
+        // '정답보기'선택 하지 않고, 돌아오는 경우가 있기 때문에 다음과 같이 처리한다.
+        if (quizViewModel.currentQuestionIsCheated) {
+            quizViewModel.cheatCount -= 1
+            setRemainCheatCountText()
+            if (!quizViewModel.isAbleToCheat()) {
+                binding.cheatButton?.let {
+                    it.isEnabled = false
+                }
+            }
+        }
     }
 
     private fun setRemainCheatCountText() {
@@ -138,15 +144,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun checkAllSolve() {
-        if (quizViewModel.isAllSolved()) {
-            moveToResultActivity()
-        } else {
-            showToast(R.string.exist_non_solved_problem)
-        }
+        moveToResultActivity()
+//        if (quizViewModel.isAllSolved()) {
+//            moveToResultActivity()
+//        } else {
+//            showToast(R.string.exist_non_solved_problem)
+//        }
     }
 
     private fun moveToResultActivity() {
-        val intent = Intent(this@MainActivity, ResultActivity::class.java)
+        val intent = ResultActivity.newIntent(this@MainActivity, quizViewModel.getQuestionList())
         activityResultLauncher.launch(intent)
     }
 
@@ -170,6 +177,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             showToast(R.string.judgement_toast)
         }
         val messageResId = getAnswerMessageId(userAnswer, quizViewModel.currentQuestionAnswer)
+        setButtonDisable()
         showToast(messageResId)
     }
 
@@ -179,8 +187,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun getAnswerMessageId(userAnswer: Boolean, correctAnswer: Boolean): Int {
         return if(userAnswer == correctAnswer) {
-            quizViewModel.run { quizViewModel.currentQuestionIsSolved = true }
-            setButtonDisable()
+            quizViewModel.run {
+                currentQuestionIsSolved = true
+                currentQuestionIsCorrect = true
+            }
             R.string.answer
         } else {
             R.string.wrong_answer
@@ -188,7 +198,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun setButtonDisable() {
-        // 사용자가 정답을 맞춘 문제를 다시 볼때에는 true, false button을 비활성화 한다.
+        // 사용자가 답을 제출한 문제를 다시 볼때에는 true, false button을 비활성화 한다.
         binding.run {
             trueButton.isEnabled = false
             falseButton.isEnabled = false
@@ -258,5 +268,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         private const val KEY_REMAIN_CHEAT_COUNT = "remainCheatCount"
         private const val REQUEST_CODE_CHEAT = 0
         private const val ANSWER_IS_TRUE = "com.kjk.geoquiz.answer_is_true"
+        private const val RESULT_FROM_CHEAT = 9001
+        private const val RESULT_FROM_RESULT = 9002
     }
 }
