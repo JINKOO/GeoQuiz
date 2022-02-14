@@ -12,6 +12,7 @@ import com.kjk.geoquiz.R
 import com.kjk.geoquiz.databinding.ActivityCheatBinding
 import com.kjk.geoquiz.quiz.MainActivity
 
+// 정답을 미리 볼 수 있는(부정행위) Activity
 class CheatActivity : AppCompatActivity(), View.OnClickListener {
 
     private val binding by lazy {
