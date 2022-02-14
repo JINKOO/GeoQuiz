@@ -9,8 +9,10 @@ import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import com.kjk.geoquiz.R
 import com.kjk.geoquiz.databinding.ActivityResultBinding
+import com.kjk.geoquiz.quiz.MainActivity
 import com.kjk.geoquiz.quiz.QuestionEntity
 
+// TODO 3장 챌린지 2
 class ResultActivity : AppCompatActivity(), View.OnClickListener {
 
     private val binding by lazy {
@@ -51,7 +53,7 @@ class ResultActivity : AppCompatActivity(), View.OnClickListener {
 
 
     private fun moveToMainActivity() {
-        setResult(RESULT_OK)
+        setResult(MainActivity.RESULT_FROM_RESULT)
         finish()
     }
 

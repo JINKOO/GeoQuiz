@@ -38,33 +38,41 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         setListener()
         initData(savedInstanceState)
 
-        activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            when(result.resultCode) {
-                RESULT_FROM_CHEAT -> {
-                    Log.d(TAG, "onCreate: cheatActivityResultLauncher")
-                    quizViewModel.currentQuestionIsCheated = result.data?.getBooleanExtra(CheatActivity.EXTRA_ANSWER_SHOWN, false) ?: false
-                    checkCheatButton()
-                }
-                RESULT_FROM_RESULT -> {
-                    Log.d(TAG, "onCreate: resultActivityResultLauncher")
+        activityResultLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                when (result.resultCode) {
+                    RESULT_FROM_CHEAT -> {
+                        Log.d(TAG, "onCreate: cheatActivityResultLauncher")
+                        quizViewModel.currentQuestionIsCheated =
+                            result.data?.getBooleanExtra(CheatActivity.EXTRA_ANSWER_SHOWN, false)
+                                ?: false
+                        checkCheatButton()
+                    }
+                    RESULT_FROM_RESULT -> {
+                        Log.d(TAG, "onCreate: resultActivityResultLauncher")
+                    }
                 }
             }
-        }
     }
 
     private fun initData(savedInstanceState: Bundle?) {
         // SIS에서 데이터를 가져온다.
         // 최초 실행인 경우에는 0이다. null체크한다.
         quizViewModel.apply {
-            currentIndex= savedInstanceState?.getInt(KEY_INDEX, 0) ?: 0
-            cheatCount = savedInstanceState?.getInt(KEY_REMAIN_CHEAT_COUNT, 0) ?: QuizViewModel.CHEAT_MAX_COUNT
+            currentIndex = savedInstanceState?.getInt(KEY_INDEX, 0) ?: 0
+            cheatCount = savedInstanceState?.getInt(KEY_REMAIN_CHEAT_COUNT, 0)
+                ?: QuizViewModel.CHEAT_MAX_COUNT
         }
-        setTextSDKVersion()
-        quizViewModel.setQuestionList()
+        setSDKVersionText()
+        initQuestionList()
         updateQuestion()
         setRemainCheatCountText()
     }
-
+    
+    private fun initQuestionList() {
+        quizViewModel.setQuestionList()
+    }
+    
     private fun checkCheatButton() {
         // TODO 7장 챌린지 2 :: 컨닝 최대 횟수 3회이다. '컨닝하기' 버튼 비활성화.
         // '정답보기'선택 하지 않고, 돌아오는 경우가 있기 때문에 다음과 같이 처리한다.
@@ -120,36 +128,33 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     checkAllSolve()
                 }
                 cheatButton -> {
-                    // CheatActivity로 이동한다.
-//                    val intent = Intent(this@MainActivity, CheatActivity::class.java)
-//                    intent.putExtra(ANSWER_IS_TRUE, quizViewModel.currentQeustionAnswer)
-                    // 원래는 MainActivity -> CheatActivity로 이동할 때, 위와 같이 사용하지만,
-                    // MainActivity나 App의 다른 Activity에서 CheatActivity가 어떤 IntentExtra를 받는 지 몰라도 되기 때문에, 캡슐화 한다.
-                    val intent = CheatActivity.newIntent(this@MainActivity, quizViewModel.currentQuestionAnswer)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        val options = ActivityOptionsCompat.makeClipRevealAnimation(
-                            view!!,
-                            0,
-                            0,
-                            view.width,
-                            view.height
-                        )
-                        activityResultLauncher.launch(intent, options)
-                    } else {
-                        activityResultLauncher.launch(intent)
-                    }
+                    moveToCheatActivity(view)
                 }
             }
         }
     }
 
     private fun checkAllSolve() {
-        moveToResultActivity()
-//        if (quizViewModel.isAllSolved()) {
-//            moveToResultActivity()
-//        } else {
-//            showToast(R.string.exist_non_solved_problem)
-//        }
+        if (quizViewModel.isAllSolved()) {
+            moveToResultActivity()
+        } else {
+            showToast(R.string.exist_non_solved_problem)
+        }
+    }
+
+    private fun moveToCheatActivity(view: View?) {
+        // CheatActivity로 이동한다.
+//        val intent = Intent(this@MainActivity, CheatActivity::class.java)
+//        intent.putExtra(ANSWER_IS_TRUE, quizViewModel.currentQeustionAnswer)
+        // 원래는 MainActivity -> CheatActivity로 이동할 때, 위와 같이 사용하지만,
+        // MainActivity나 App의 다른 Activity에서 CheatActivity가 어떤 IntentExtra를 받는 지 몰라도 되기 때문에, 캡슐화 한다.
+        val intent = CheatActivity.newIntent(this@MainActivity, quizViewModel.currentQuestionIsCheated)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val options = ActivityOptionsCompat.makeClipRevealAnimation(view!!, 0, 0, view.width, view.height)
+            activityResultLauncher.launch(intent, options)
+        } else {
+            activityResultLauncher.launch(intent)
+        }
     }
 
     private fun moveToResultActivity() {
@@ -160,6 +165,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private fun updateQuestion() {
         binding.questionTextView.run {
             text = makeQuestionText()
+            Log.d(TAG, "updateQuestion: ${quizViewModel.currentQuestionIsSolved}")
             if (quizViewModel.currentQuestionIsSolved) {
                 setButtonDisable()
             } else {
@@ -173,8 +179,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
-        if (quizViewModel.currentQuestionIsCheated) {
-            showToast(R.string.judgement_toast)
+        quizViewModel.run {
+            if (currentQuestionIsCheated) {
+                showToast(R.string.judgement_toast)
+            }
+            currentQuestionIsSolved = true
         }
         val messageResId = getAnswerMessageId(userAnswer, quizViewModel.currentQuestionAnswer)
         setButtonDisable()
@@ -186,11 +195,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun getAnswerMessageId(userAnswer: Boolean, correctAnswer: Boolean): Int {
-        return if(userAnswer == correctAnswer) {
-            quizViewModel.run {
-                currentQuestionIsSolved = true
-                currentQuestionIsCorrect = true
-            }
+        return if (userAnswer == correctAnswer) {
+            quizViewModel.run { currentQuestionIsCorrect = true }
             R.string.answer
         } else {
             R.string.wrong_answer
@@ -213,7 +219,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     // TODO :: 7장 챌린지 1
-    private fun setTextSDKVersion() {
+    private fun setSDKVersionText() {
         binding.sdkVersionTextView.apply {
             text = getString(R.string.sdk_version_info, Build.VERSION.SDK_INT)
         }
@@ -268,7 +274,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         private const val KEY_REMAIN_CHEAT_COUNT = "remainCheatCount"
         private const val REQUEST_CODE_CHEAT = 0
         private const val ANSWER_IS_TRUE = "com.kjk.geoquiz.answer_is_true"
-        private const val RESULT_FROM_CHEAT = 9001
-        private const val RESULT_FROM_RESULT = 9002
+        const val RESULT_FROM_CHEAT = 9001
+        const val RESULT_FROM_RESULT = 9002
     }
 }
