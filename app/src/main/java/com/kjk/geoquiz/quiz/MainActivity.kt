@@ -17,6 +17,7 @@ import com.kjk.geoquiz.cheat.CheatActivity
 import com.kjk.geoquiz.databinding.ActivityMainBinding
 import com.kjk.geoquiz.result.ResultActivity
 
+// MainActivity quiz메인 화면
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     // viewBinding
