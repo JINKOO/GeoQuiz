@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.kjk.geoquiz.quiz.QuizViewModel
 import com.kjk.geoquiz.R
 import com.kjk.geoquiz.databinding.ActivityCheatBinding
+import com.kjk.geoquiz.quiz.MainActivity
 
 class CheatActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -66,7 +67,7 @@ class CheatActivity : AppCompatActivity(), View.OnClickListener {
         val intent = Intent().apply {
             putExtra(EXTRA_ANSWER_SHOWN, isAnswerShown)
         }
-        setResult(RESULT_OK, intent)
+        setResult(MainActivity.RESULT_FROM_CHEAT, intent)
     }
 
     override fun onClick(v: View?) {
