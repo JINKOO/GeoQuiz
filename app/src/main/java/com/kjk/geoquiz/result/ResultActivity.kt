@@ -12,7 +12,7 @@ import com.kjk.geoquiz.databinding.ActivityResultBinding
 import com.kjk.geoquiz.quiz.MainActivity
 import com.kjk.geoquiz.quiz.QuestionEntity
 
-// TODO 3장 챌린지 2
+// TODO 3장 챌린지 2 :: 성적보여주기
 class ResultActivity : AppCompatActivity(), View.OnClickListener {
 
     private val binding by lazy {
