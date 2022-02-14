@@ -23,6 +23,7 @@ class CheatActivity : AppCompatActivity(), View.OnClickListener {
         ViewModelProvider(this@CheatActivity).get(CheatViewModel::class.java)
     }
 
+    // 정답 보여주는 프로퍼티
     private var answerIsTrue = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
